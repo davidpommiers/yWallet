@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BIP39" Version="1.0.1.1" />
+    <PackageReference Include="NBitcoin" Version="7.0.25" />
+    <PackageReference Include="Nethereum" Version="0.95.0--date20210125-0551.git-05a29e9" />
+    <PackageReference Include="Nethereum.HdWallet" Version="4.14.0" />
+    <PackageReference Include="Nethereum.Web3" Version="4.14.0" />
+    <PackageReference Include="QBitNinja.Client" Version="1.0.4" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2578" />
+  </ItemGroup>
+
+</Project>

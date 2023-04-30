@@ -1,0 +1,53 @@
+iCollect :
+
+iCollect is a tool designed specifically for artists and developers of Animokart. This tool provides a range of features that enable users to easily deal with infomation about a PFP collection. 
+
+
+
+INTRODUCTION : 
+
+iCollection is a  tool designed specifically for artists and developers of Animokarts. It allows users to generate an object collection that contains all the PFPs, attributes, owners, and images. Additionally, it automatically exports an Excel file containing all this information, as well as a second worksheet that lists all the existing attributes from least to most rare.  iCollection also generates a .json file that makes it easy for Animokarts developers to access any information in the collection.
+
+I) Key Features :
+
+[Export Excel ]: Excel file containing all this information, as well as a second worksheet that lists all the existing attributes from least to most rare
+
+[Export .json] : Generates a .json file that makes it easy for Animokarts developers to access any information in the collection.
+
+II) System Requirements :
+
+Operating System: you will needed to install dotnet
+
+Processor: No specific Processor require
+
+Memory: No specific Memory require
+
+Disk Space: No specific Disk Space require
+
+III) Installation :
+
+To install iCollection, follow these steps :
+
+install dotnet in your computer
+
+find the folder Nethereum in P4V
+
+lunch your terminal
+
+IV) Getting Started :
+
+To get started with Tool Name, follow these steps:
+
+Open a Terminal at the correct address i.e, you should be C:\yourpath\NethereumSample*
+
+Press : 
+
+dotnet run
+
+It will be asked to enter the address of the smart contract in the Blockchain.
+
+The iCollecton tool comes equipped with a help feature that provides detailed instructions for every step of the process. You can access it at any time adding --help
+
+V) Support and Contact :
+
+If you need assistance with iCollection or have any questions, please contact me at pierre.nadal@me.com or pnadal@edengames.com .

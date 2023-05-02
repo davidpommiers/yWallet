@@ -1,40 +1,43 @@
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
 public class AES
 {
-    private  byte[] IV = new byte[16]; 
-    private  string toEncrypt;
-    private  byte[] password = new byte[32];
-    private byte[] encryptMessage = new byte[32];
-    public AES(string toEncrypt, string password)
+    public static string[] findIVAndHashInLines(string line)
     {
-        this.toEncrypt = toEncrypt;
-        this.password = StringToAes256Key(password);
-        Console.WriteLine(this.password[0]);
-        RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-        rng.GetBytes(this.IV);
-        this.encryptMessage = EncryptStringToBytesAes(toEncrypt, this.password, this.IV);
-    }
+        string[] result = new string[2];
+        int indexSapce = 0;
+        foreach (var carac in line)
+        {
+            if(carac == 32)
+            {
+                indexSapce++;
+                break;
+            }
+            else
+            {
+                result[0] += carac;
+            }
+            indexSapce++;
+        }
 
-    public byte[] GetIV()
-    {
-        return this.IV;
-    }
+        for (int i = indexSapce; i < line.Length; i++)
+        {
+            result[1] += line[i];
+        }
 
-    public string GetToEncrypt()
-    {
-        return this.toEncrypt;
+        return result;
     }
-
-    public byte[] GetPassword()
+    public static byte[] StringToByteArray(string hex)
     {
-        return this.password;
-    }
-
-    public byte[] GetEncryptMessage()
-    {
-        return this.encryptMessage;
+        int length = hex.Length;
+        byte[] bytes = new byte[length / 2];
+        for (int i = 0; i < length; i += 2)
+        {
+            bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+        }
+        return bytes;
     }
     public static byte[] StringToAes256Key(string keyString)
     {
@@ -42,6 +45,7 @@ public class AES
         byte[] keyBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(keyString));
         return keyBytes;
     }
+    
     public static byte[] EncryptStringToBytesAes(string plainText, byte[] Key, byte[] IV)
     {
         // Check arguments.
@@ -82,32 +86,32 @@ public class AES
         return encrypted;
     }
 
-    public  string DecryptStringFromBytesAes()
+    public static string DecryptStringFromBytesAes(byte[] cipherText, byte[] Key, byte[] IV)
     {
         // Check arguments.
-        if (this.encryptMessage == null || this.encryptMessage.Length <= 0)
+        if (cipherText == null || cipherText.Length <= 0)
             throw new ArgumentNullException("cipherText");
-        if (this.password == null || this.password.Length <= 0)
+        if (Key == null || Key.Length <= 0)
             throw new ArgumentNullException("Key");
-        if (this.IV == null || this.IV.Length <= 0)
+        if (IV == null || IV.Length <= 0)
             throw new ArgumentNullException("IV");
 
         // Declare the string used to hold
         // the decrypted text.
-        string plaintext = string.Empty;
+        string plaintext = null;
 
         // Create an Aes object
         // with the specified key and IV.
         using (Aes aesAlg = Aes.Create())
         {
-            aesAlg.Key = this.password;
+            aesAlg.Key = Key;
             aesAlg.IV = IV;
 
             // Create a decryptor to perform the stream transform.
             ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
             // Create the streams used for decryption.
-            using (MemoryStream msDecrypt = new MemoryStream(this.encryptMessage))
+            using (MemoryStream msDecrypt = new MemoryStream(cipherText))
             {
                 using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
                 {
@@ -123,5 +127,25 @@ public class AES
         }
 
         return plaintext;
+    }
+
+    public static string Encypt(string toEncrypt, string password, byte[] IV)
+    {
+        byte[] passwordSHA256 = StringToAes256Key(password);
+        byte[] encryptMessage = new byte[32];
+        encryptMessage = EncryptStringToBytesAes(toEncrypt, passwordSHA256, IV);
+        string de = DecryptStringFromBytesAes(encryptMessage, passwordSHA256, IV);
+        return BitConverter.ToString(encryptMessage).Replace("-", "");
+    }
+    public static string Decrypt(string message, string password, string IV)
+    {
+        byte[] messageArray = StringToByteArray(message);
+        byte[] passwordSHA256 = StringToAes256Key(password);
+        byte[] IVArray = new byte[16];
+        Console.WriteLine("IV" + IV);
+        IVArray = StringToByteArray(IV);
+        string encryptMessage = string.Empty;
+        encryptMessage = DecryptStringFromBytesAes(messageArray, passwordSHA256, IVArray);
+        return encryptMessage;
     }
 }

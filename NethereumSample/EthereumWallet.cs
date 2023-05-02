@@ -1,10 +1,8 @@
-using System.Numerics;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using NBitcoin;
 using Nethereum.HdWallet;
 using Nethereum.Hex.HexTypes;
-using Bitcoin.BIP39;
 
 namespace NethereumSample
 {
@@ -39,7 +37,7 @@ namespace NethereumSample
             this.privateKey = this.genesisAccount.PrivateKey;
             this.publicAdress = this.genesisAccount.Address;
             this.numberOfAccount = 0;
-            this.network = new Web3(network);
+            this.network = new Web3(this.genesisAccount,network);
         }
 
         public EthereumWallet(string privateKey, string password, string network)
@@ -102,7 +100,6 @@ namespace NethereumSample
         /// <returns>the hash of the transaction</returns>
         public  async Task<string> sendEther(string To, decimal amount, Account account, decimal gwei = 0)
         {
-
             try
             {
                 Nethereum.RPC.Eth.DTOs.TransactionReceipt transaction;

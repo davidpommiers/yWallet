@@ -25,7 +25,8 @@ namespace NethereumSample
         private string privateKey;
         private string publicAdress;
         private Mnemonic mnemo;
-        private string v;
+        private List<string> categorys = new List<string>();
+
 
         /// <summary>
         /// This constructor creates a new Ethereum wallet using a given seed phrase and password. 
@@ -132,7 +133,8 @@ namespace NethereumSample
                 newAccount = new AccountETH(this.network, name, category, PATHACCOUNTSAVE, this.Accounts[this.numberOfAccount-1].GetPrivateKey());
             }
             this.numberOfAccount++;
-            this.Accounts.Add(newAccount);        
+            this.Accounts.Add(newAccount); 
+            this.categorys.Add(category);       
         }  
     }
 }

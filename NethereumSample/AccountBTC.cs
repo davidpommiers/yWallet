@@ -4,46 +4,33 @@ using System.Text;
 
 namespace NethereumSample
 {
-    public enum Speed
-    {
-        LOW = 74,
-        MEDIUM = 148,
-        HIGH = 256,
-        FAST = 300
-    }
-    public class BitcoinWallet
+    public class AccountBTC
     {
         //This property represents the seed phrase for the Ethereum wallet with 12Words.
-        private  List<AccountBTC> Accounts = new List<AccountBTC>();
-        private List<string> categorys = new List<string>();
+
         public static string BlockChainAPI = "1ef88390eda34881bb460ed1ec58c256";
         private Network network;
         private BitcoinAddress publicAddressBtc;
         private BitcoinSecret privateKey;
-        private int numberOfAccount = 0;
+        private string category;
+        private string name;
 
-        public BitcoinWallet(Mnemonic seedPhrase, Network network)
+        public AccountBTC(string name, string category, string path, BitcoinSecret password, Network network)
         {
             this.network = network;
-            ExtKey hdroot = seedPhrase.DeriveExtKey();
-            ExtKey pkey = hdroot.Derive(new NBitcoin.KeyPath("m/84'/0'/0'/0/0'"));
-            this.privateKey = pkey.PrivateKey.GetBitcoinSecret(network);
-            this.publicAddressBtc = pkey.GetPublicKey().GetAddress(ScriptPubKeyType.Segwit, network);
-        }
-        public BitcoinWallet(string privateKey, Network network)
-        {
-            this.network = network;
-            this.privateKey = new BitcoinSecret(privateKey, network);
-            this.publicAddressBtc = this.privateKey.GetAddress(ScriptPubKeyType.Legacy);
+            Key newKey = new Key();
+            this.privateKey = newKey.GetBitcoinSecret(network);
+            this.publicAddressBtc = privateKey.GetAddress(ScriptPubKeyType.Legacy);
+            this.category = category;
+            this.name = name;
+            string filePath = path;
+            (string, string) lineToAdd = AES.Encypt(this.privateKey.ToString(), password.ToString());
+            InformationUser.SaveInfo(lineToAdd.Item1 + " " + lineToAdd.Item2, InformationUser.ACCOUNTSBTC);
         }
 
-        public  string GetBlockChainAPI()
+        public static string GetBlockChainAPI()
         {
             return BlockChainAPI;
-        }
-        public  List<AccountBTC> GetAccounts()
-        {
-            return this.Accounts;
         }
 
         public Network GetNetwork()
@@ -61,68 +48,6 @@ namespace NethereumSample
             return this.privateKey;
         }
 
-        public async Task<decimal> CheckBalance()
-        {
-            using (var httpClient = new HttpClient())
-            {
-                string url = "https://api.blockchair.com/bitcoin/addresses/balances?addresses=" + this.publicAddressBtc.ToString();
-                var response = await httpClient.GetAsync(url);
-                string jsonResponse = await response.Content.ReadAsStringAsync();
-
-                JObject json = JObject.Parse(jsonResponse);
-                Console.WriteLine(json);
-                decimal balanceSatoshi;
-                try
-                {
-                    balanceSatoshi = json["data"][this.publicAddressBtc.ToString()].Value<decimal>();
-                }
-                catch(System.ArgumentException)
-                {
-                    balanceSatoshi = 0;
-                }
-                // Convertir le solde en BTC
-                decimal balanceBTC = balanceSatoshi / 1_000_000_000m;
-                return balanceSatoshi;
-            }
-        }
-
-        public bool VerifySignature(string transactionSigned, Network network)
-        {
-            Transaction signedTransaction = Transaction.Parse(transactionSigned, Network.TestNet); // Utilisez Network.Main pour le réseau principal (mainnet)
-            bool allInputsSigned = true;
-
-            for (int i = 0; i < signedTransaction.Inputs.Count; i++)
-            {
-                TxIn input = signedTransaction.Inputs[i];
-                OutPoint previousOutput = input.PrevOut;
-                Money prevAmount = 1546991; // À remplacer par le montant de l'output précédent
-
-                var txOut = new TxOut(prevAmount, this.publicAddressBtc.ScriptPubKey);
-                var coin = new Coin(previousOutput, txOut);
-                var checker = new TransactionChecker(signedTransaction, i, coin.TxOut);
-
-                ScriptEvaluationContext scriptContext = new ScriptEvaluationContext();
-                bool isValidSignature = scriptContext.VerifyScript(input.ScriptSig, txOut.ScriptPubKey, checker);
-
-                if (!isValidSignature)
-                {
-                    allInputsSigned = false;
-                    Console.WriteLine($"La signature de l'entrée {i} n'est pas valide.");
-                    return false;
-                }
-            }
-
-            if (allInputsSigned)
-            {
-                Console.WriteLine("Toutes les signatures de la transaction sont valides.");
-                return true;
-            }
-            else
-            {
-                Console.WriteLine("Certaines signatures de la transaction ne sont pas valides.");
-                return false;
-            }
-        }
         public Money EstimateGazFee(decimal number_of_inputs,  decimal number_of_outputs, Speed speed)
         {
             Money fee = new Money(number_of_inputs*148 + number_of_outputs * 34 + (decimal)speed, MoneyUnit.Satoshi);
@@ -225,23 +150,6 @@ namespace NethereumSample
                 Console.WriteLine("Erreur lors de la diffusion de la transaction : " + responseBody);
                 return "";
             }
-        }
-
-        public void AddAccount(string name, string category)
-        {
-            AccountBTC newAccount;
-            if(this.Accounts.Count == 0)
-            {
-                newAccount = new AccountBTC(name, category, InformationUser.ACCOUNTSBTC, this.privateKey, this.network); 
-                
-            }
-            else
-            {
-                newAccount = new AccountBTC(name, category, InformationUser.ACCOUNTSBTC, this.Accounts[this.numberOfAccount-1].GetPrivateKey(), this.network);
-            }
-            this.numberOfAccount++;
-            this.Accounts.Add(newAccount); 
-            this.categorys.Add(category);       
         }
     }
 }

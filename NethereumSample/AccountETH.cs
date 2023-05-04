@@ -22,19 +22,28 @@ namespace NethereumSample
 
         private decimal myNmbEth;
 
+        private string category;
+        private string name;
+
+
         /// <summary>
         /// This constructor creates a new Ethereum wallet using a given seed phrase and password. 
         /// The seedPhrase parameter is a Mnemonic object that represents the seed phrase for the wallet, and the password parameter is a string that represents the password for the wallet.
         /// </summary>
         /// <param name="seedPhrase"></param>
         /// <param name="password"></param>
-        public AccountETH(Web3 network)
+        public AccountETH(Web3 network, string name, string category, string path, string password)
         {
+            this.name = name;
+            this.category = category;
             this.network = network;
             EthECKey ecKey = EthECKey.GenerateKey();
             this.privateKey = ecKey.GetPrivateKey();
             this.publicAddress = ecKey.GetPublicAddress();
             this.account = new Account(this.privateKey);
+            string filePath = path;
+            (string, string) lineToAdd = AES.Encypt(this.privateKey, password);
+            InformationUser.SaveInfo(lineToAdd.Item1 + " " + lineToAdd.Item2, InformationUser.ACCOUNTSETH);            
         }
 
         public string GetPrivateKey()
@@ -45,6 +54,14 @@ namespace NethereumSample
         public string GetPublicAddress()
         {
             return this.publicAddress;
+        }
+        public string GetCategory()
+        {
+            return this.category;
+        }
+        public string GetName()
+        {
+            return this.name;
         }
 
         public Web3 GetConnector()

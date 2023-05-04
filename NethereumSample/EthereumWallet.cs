@@ -12,17 +12,20 @@ namespace NethereumSample
     /// </summary>
     public class EthereumWallet
     {
+        private string PATHACCOUNTSAVE = "AccountsETH.txt";
         private Account genesisAccount;
         //This property represents the number of accounts in the Ethereum wallet.
         private int numberOfAccount;
         //This property represents a list of Account objects associated with the Ethereum wallet.
-        private  List<Account> Accounts = new List<Account>();
+        private  List<AccountETH> Accounts = new List<AccountETH>();
         
         //This property represents the Web3 object for connecting to the Ethereum network, infura
         private Web3 network;
 
         private string privateKey;
         private string publicAdress;
+        private Mnemonic mnemo;
+        private string v;
 
         /// <summary>
         /// This constructor creates a new Ethereum wallet using a given seed phrase and password. 
@@ -30,24 +33,15 @@ namespace NethereumSample
         /// </summary>
         /// <param name="seedPhrase"></param>
         /// <param name="password"></param>
-        public EthereumWallet(Mnemonic seedPhrase, string password, string network)
+        public EthereumWallet(Mnemonic seedPhrase,  string network)
         {
-            Wallet myWalletEth = new Wallet(seedPhrase+"", password);
+            Wallet myWalletEth = new Wallet(seedPhrase.WordList, WordCount.TwentyFour);
             this.genesisAccount = myWalletEth.GetAccount(0);
             this.privateKey = this.genesisAccount.PrivateKey;
             this.publicAdress = this.genesisAccount.Address;
             this.numberOfAccount = 0;
             this.network = new Web3(this.genesisAccount,network);
-        }
-
-        public EthereumWallet(string privateKey, string password, string network)
-        {
-            Wallet myWalletEth = new Wallet(privateKey, password);
-            this.genesisAccount = myWalletEth.GetAccount(0);
-            this.privateKey = this.genesisAccount.PrivateKey;
-            this.publicAdress = this.genesisAccount.Address;
-            this.numberOfAccount = 0;
-            this.network = new Web3(this.genesisAccount, network);
+            
         }
 
         public int GetNumberOfAccount()
@@ -55,7 +49,12 @@ namespace NethereumSample
             return this.numberOfAccount;
         }
 
-        public List<Account> GetAccounts()
+        public string GetPrivateKey()
+        {
+            return this.privateKey;
+        }
+
+        public List<AccountETH> GetAccounts()
         {
             return this.Accounts;
         }
@@ -118,6 +117,22 @@ namespace NethereumSample
                 Console.WriteLine(e);
                 return "";
             }
-        }    
+        }  
+
+        public void AddAccount(string name, string category)
+        {
+            AccountETH newAccount;
+            if(this.Accounts.Count == 0)
+            {
+                newAccount = new AccountETH(this.network, name, category, PATHACCOUNTSAVE, this.privateKey);
+                
+            }
+            else
+            {
+                newAccount = new AccountETH(this.network, name, category, PATHACCOUNTSAVE, this.Accounts[this.numberOfAccount-1].GetPrivateKey());
+            }
+            this.numberOfAccount++;
+            this.Accounts.Add(newAccount);        
+        }  
     }
 }

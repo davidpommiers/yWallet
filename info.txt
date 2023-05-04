@@ -1,6 +1,6 @@
 Commit template : 
 
-git commit -m "yourWallet0.1" -m "id = 1" 
+git commit -m "yourWallet0.1" -m "id = 2" 
 -m " types of commit = BUGFIX"
 -m " types of commit = Feature"
 -m " types of commit = Merge/Integrate"
